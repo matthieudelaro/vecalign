@@ -84,6 +84,12 @@ def _main():
     parser.add_argument('--debug_save_stack', type=str,
                         help='Write stack to pickle file for debug purposes')
 
+    parser.add_argument('--output_format', type=str,
+                        help='the format of the output', default="default")
+
+    parser.add_argument('--output_file_path', type=str,
+                        help='the name of the file to write the result to', default="")
+
     args = parser.parse_args()
 
     if len(args.src) != len(args.tgt):
@@ -129,8 +135,26 @@ def _main():
                          costs_sample_size=args.costs_sample_size,
                          num_samps_for_norm=args.num_samps_for_norm)
 
-        # write final alignments to stdout
-        print_alignments(stack[0]['final_alignments'], stack[0]['alignment_scores'])
+        if args.output_format == "default":
+            print_alignments(stack[0]['final_alignments'], stack[0]['alignment_scores'])
+        else:
+            import json
+            res = stack[0]['final_alignments']
+            res = [
+                {
+                    "src_indexes": src,
+                    "tgt_indexes": tgt,
+                    "score": stack[0]['alignment_scores'][i],
+                    "src_txt": "\n".join([src_lines[i] for i in src]),
+                    "tgt_txt": "\n".join([tgt_lines[i] for i in tgt]),
+                } for i, (src, tgt) in enumerate(stack[0]['final_alignments'])
+            ]
+            content = json.dumps(res, indent=4, sort_keys=True)
+            if args.output_file_path:
+                with open(args.output_file_path, "w") as text_file:
+                    text_file.write(content)
+            else:
+                print(content)
 
         test_alignments.append(stack[0]['final_alignments'])
         stack_list.append(stack)
