@@ -138,8 +138,6 @@ def _main():
         if args.output_format == "default":
             print_alignments(stack[0]['final_alignments'], stack[0]['alignment_scores'])
         else:
-            import json
-            res = stack[0]['final_alignments']
             res = [
                 {
                     "src_indexes": src,
@@ -147,9 +145,22 @@ def _main():
                     "score": stack[0]['alignment_scores'][i],
                     "src_txt": "\n".join([src_lines[i] for i in src]),
                     "tgt_txt": "\n".join([tgt_lines[i] for i in tgt]),
-                } for i, (src, tgt) in enumerate(stack[0]['final_alignments'])
+                } for i, (src, tgt) in enumerate(stack[0]['final_alignments'][:50])
             ]
-            content = json.dumps(res, indent=4, sort_keys=True)
+            content = None
+            if args.output_format == "json":
+                import json
+                content = json.dumps(res, indent=4, sort_keys=True)
+            elif args.output_format == "csv":
+                headers = ["src_indexes", "tgt_indexes", "score", "src_txt", "tgt_txt",]
+                rows = [headers] + [
+                    # ", ".join(('"{}"'.format(row[column_name]) for column_name in headers))
+                    [row[column_name] for column_name in headers]
+                    for row in res
+                ]
+                content = "\n".join((   ", ".join(('"{}"'.format(str(column).replace("\n", "\\n").replace('"', '\"')) for column in row))    for row in rows))
+            else:
+                logger.warning('Invalid output_format "{}". Accepted values are : json, csv'.format(args.output_format))
             if args.output_file_path:
                 with open(args.output_file_path, "w") as text_file:
                     text_file.write(content)
