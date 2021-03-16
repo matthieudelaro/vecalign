@@ -145,7 +145,7 @@ def _main():
                     "score": stack[0]['alignment_scores'][i],
                     "src_txt": "\n".join([src_lines[i] for i in src]),
                     "tgt_txt": "\n".join([tgt_lines[i] for i in tgt]),
-                } for i, (src, tgt) in enumerate(stack[0]['final_alignments'][:50])
+                } for i, (src, tgt) in enumerate(stack[0]['final_alignments'])
             ]
             content = None
             if args.output_format == "json":
