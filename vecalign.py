@@ -165,8 +165,8 @@ def _main():
                     ] for row in res
                 ]
                 # content = "\n".join((   ", ".join(('"{}"'.format(str(column).replace("\n", "\\n").replace('"', '\"')) for column in row))    for row in rows))
-                content = "\n".join((
-                    ", ".join([str(column) for column in row]) for row in rows
+                content = "\r\n".join((
+                    ",".join([str(column) for column in row]) for row in rows
                 ))
             else:
                 logger.warning('Invalid output_format "{}". Accepted values are : json, csv'.format(args.output_format))
