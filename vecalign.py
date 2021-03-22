@@ -153,21 +153,25 @@ def _main():
                 content = json.dumps(res, indent=4, sort_keys=True)
             elif args.output_format == "csv":
                 headers = ["src_indexes", "tgt_indexes", "score", "src_txt", "tgt_txt",]
-                rows = [headers] + [
-                    # ", ".join(('"{}"'.format(row[column_name]) for column_name in headers))
-                    # [row[column_name] for column_name in headers]
+                rows = [
                     [
                         " ".join([str(i) for i in row["src_indexes"]]), 
                         " ".join([str(i) for i in row["tgt_indexes"]]),
                         row["score"],
+                        # row["src_txt"],
+                        # row["tgt_txt"],
                         '"{}"'.format(row["src_txt"].replace("\n", "\\n").replace('"', '\"')),
                         '"{}"'.format(row["tgt_txt"].replace("\n", "\\n").replace('"', '\"')),
                     ] for row in res
                 ]
+                import pandas as pd
+                df = pd.DataFrame(rows, columns=headers)
+                content = df.to_csv(index=False)
+                # rows = [headers] + rows
                 # content = "\n".join((   ", ".join(('"{}"'.format(str(column).replace("\n", "\\n").replace('"', '\"')) for column in row))    for row in rows))
-                content = "\r\n".join((
-                    ",".join([str(column) for column in row]) for row in rows
-                ))
+                # content = "\r\n".join((
+                #     ",".join([str(column) for column in row]) for row in rows
+                # ))
             else:
                 logger.warning('Invalid output_format "{}". Accepted values are : json, csv'.format(args.output_format))
             if args.output_file_path:
