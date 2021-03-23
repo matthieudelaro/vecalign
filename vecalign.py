@@ -87,6 +87,12 @@ def _main():
     parser.add_argument('--output_format', type=str,
                         help='the format of the output', default="default")
 
+    parser.add_argument('--output_tgt_label', type=str,
+                        help='the label to be used to refer to target input', default="tgt")
+
+    parser.add_argument('--output_src_label', type=str,
+                        help='the label to be used to refer to source input', default="src")
+
     parser.add_argument('--output_file_path', type=str,
                         help='the name of the file to write the result to', default="")
 
@@ -140,11 +146,11 @@ def _main():
         else:
             res = [
                 {
-                    "src_indexes": src,
-                    "tgt_indexes": tgt,
+                    f"{args.output_src_label}_indexes": src,
+                    f"{args.output_tgt_label}_indexes": tgt,
                     "score": stack[0]['alignment_scores'][i],
-                    "src_txt": "\n".join([src_lines[i] for i in src]),
-                    "tgt_txt": "\n".join([tgt_lines[i] for i in tgt]),
+                    f"{args.output_src_label}_text": "\n".join([src_lines[i] for i in src]),
+                    f"{args.output_tgt_label}_text": "\n".join([tgt_lines[i] for i in tgt]),
                 } for i, (src, tgt) in enumerate(stack[0]['final_alignments'])
             ]
             content = None
@@ -152,16 +158,16 @@ def _main():
                 import json
                 content = json.dumps(res, indent=4, sort_keys=True)
             elif args.output_format == "csv":
-                headers = ["src_indexes", "tgt_indexes", "score", "src_txt", "tgt_txt",]
+                headers = [f"{args.output_src_label}_indexes", f"{args.output_tgt_label}_indexes", "score", f"{args.output_src_label}_text", f"{args.output_tgt_label}_text",]
                 rows = [
                     [
-                        " ".join([str(i) for i in row["src_indexes"]]), 
-                        " ".join([str(i) for i in row["tgt_indexes"]]),
+                        " ".join([str(i) for i in row[f"{args.output_src_label}_indexes"]]), 
+                        " ".join([str(i) for i in row[f"{args.output_tgt_label}_indexes"]]),
                         row["score"],
                         # row["src_txt"],
                         # row["tgt_txt"],
-                        '"{}"'.format(row["src_txt"].replace("\n", "\\n").replace('"', '\"')),
-                        '"{}"'.format(row["tgt_txt"].replace("\n", "\\n").replace('"', '\"')),
+                        '"{}"'.format(row[f"{args.output_src_label}_text"].replace("\n", "\\n").replace('"', '\"')),
+                        '"{}"'.format(row[f"{args.output_tgt_label}_text"].replace("\n", "\\n").replace('"', '\"')),
                     ] for row in res
                 ]
                 import pandas as pd
