@@ -65,8 +65,8 @@ def read_in_embeddings(text_file, embed_file):
         raise Exception('Got empty embedding file')
 
     laser_embedding_size = line_embeddings.size // len(sent2line)  # currently hardcoded to 1024
-    if laser_embedding_size != 1024:
-        logger.warning('expected an embedding size of 1024, got %s', laser_embedding_size)
+    # if laser_embedding_size != 1024:
+    #    logger.warning('expected an embedding size of 1024, got %s', laser_embedding_size)
     logger.info('laser_embedding_size determined to be %d', laser_embedding_size)
     line_embeddings.resize(line_embeddings.shape[0] // laser_embedding_size, laser_embedding_size)
     return sent2line, line_embeddings
